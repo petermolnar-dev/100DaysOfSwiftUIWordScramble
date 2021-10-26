@@ -15,7 +15,15 @@ struct ContentView: View {
     @State private var errorTitle = ""
     @State private var errorMessage = ""
     @State private var showingError = false
-
+    
+    private var score: Int {
+        var value = 0
+        for word in usedWords {
+            value += word.utf16.count
+        }
+        value += usedWords.count
+        return value
+    }
     
     var body: some View {
         NavigationView {
@@ -25,6 +33,7 @@ struct ContentView: View {
                     .padding()
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
+                Text("Your score: \(score)")
                 List(usedWords, id: \.self) {
                         Image(systemName: "\($0.count).circle")
                         Text($0)
@@ -35,6 +44,11 @@ struct ContentView: View {
             .alert(isPresented: $showingError) {
                 Alert(title: Text(errorTitle), message: Text(errorMessage), dismissButton: .default(Text("OK")))
             }
+            .navigationBarItems(trailing:
+                                    Button(action: startGame, label: {
+                Text("New word")
+            })
+            )
         }
     }
     
@@ -76,6 +90,7 @@ struct ContentView: View {
                 let allWords = startWords.components(separatedBy: "\n")
                 
                 rootWord = allWords.randomElement() ?? "silkworm"
+                usedWords = [String]()
                 return
             }
         }
@@ -107,9 +122,9 @@ struct ContentView: View {
     
     func isReal(word: String) -> Bool {
         
-        guard word.utf16.count > 3 else {
-            return false
-        }
+//        guard word.utf16.count > 3 else {
+//            return false
+//        }
 
         let checker = UITextChecker()
         let range = NSRange(location: 0, length: word.utf16.count)

@@ -24,6 +24,7 @@ struct ContentView: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                     .autocapitalization(.none)
+                    .disableAutocorrection(true)
                 List(usedWords, id: \.self) {
                         Image(systemName: "\($0.count).circle")
                         Text($0)
@@ -44,6 +45,12 @@ struct ContentView: View {
             return
         }
         
+        guard isNotSame(word: answer) else {
+            wordError(title: "It's the same as our word", message: "You can do better!")
+            return
+        }
+        
+        
         guard isOriginal(word: answer) else {
             wordError(title: "Woprd used already", message: "Be more original!")
             return
@@ -55,7 +62,7 @@ struct ContentView: View {
         }
         
         guard isReal(word: answer) else {
-            wordError(title: "Word not possible", message: "That isn;t a real word!")
+            wordError(title: "Word not possible", message: "That isn't a real word!")
             return
         }
         
@@ -94,7 +101,16 @@ struct ContentView: View {
         return true
     }
     
+    func isNotSame(word: String) -> Bool {
+        return word != rootWord
+    }
+    
     func isReal(word: String) -> Bool {
+        
+        guard word.utf16.count > 3 else {
+            return false
+        }
+
         let checker = UITextChecker()
         let range = NSRange(location: 0, length: word.utf16.count)
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
